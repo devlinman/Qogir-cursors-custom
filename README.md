@@ -13,9 +13,29 @@ I made my own `better_fucking_build.sh` file.
 
 It builds the cursors from the svgs using `inkscape` and `xcursorgen`, for any given size.
 
+### Build & Install
+
+
 I need size `40`. You may want to customize the sizes in `SIZES` variable.
 
-Also modified the `install.sh` file to only install the required theme. I don't need the manjaro or ubuntu version.
+I also modified the `install.sh` file to only install the required theme. I don't need the manjaro or ubuntu version.
+
+So, just change the `SIZES` variable in my ***custom*** build script.
+
+runit
+
+install using `install.sh`
+
+### I actually realised that the actual hotspots are inside `scalable` folder.... 
+
+Right now the build script just approximates the hotspots for the cursor files...
+
+Maybe in future I will make the scaling and hotspot positions correct...  
+
+For now, I am satisfied. size 40 works without any problems... for now.
+
+---
+# Please listen...
 
 ### I didn't want to fork the entire Qogir icon theme repo. 
 
@@ -45,6 +65,8 @@ Information about the source repo is found below.
 # Original Repo link: [Qogir-icon-theme](https://github.com/vinceliuice/Qogir-icon-theme)
 
 ## Cursors found inside `src/cursors` in the original repo.
+
+## What follows is the original README inside `src/cursors` 
 
 This is an x-cursor theme inspired by Qogir theme and
 based on [capitaine-cursors](https://github.com/keeferrourke/capitaine-cursors).
