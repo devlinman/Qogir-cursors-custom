@@ -3,7 +3,7 @@
 ## Look, I like these cursors. 
 ## I neeeed them. 
 
-And Plasma just removed them from themes (after updating to Plasma 6.6).
+And Plasma just removed them from cursor themes today! (after updating to Plasma 6.6).
 
 So I tried building from source....
 
@@ -15,10 +15,11 @@ It builds the cursors from the svgs using `inkscape` and `xcursorgen`, for any g
 
 ### Build & Install
 
+I need size `40`. 
 
-I need size `40`. You may want to customize the sizes in `SIZES` variable.
+If you want something else, edit the `SIZES` variable in the custom build script.
 
-I also modified the `install.sh` file to only install the required theme. I don't need the manjaro or ubuntu version.
+I also modified the `install.sh` file to only install the required theme. I don't need the manjaro or ubuntu versions.
 
 So, just change the `SIZES` variable in my ***custom*** build script.
 
@@ -26,30 +27,61 @@ runit
 
 install using `install.sh`
 
-### I actually realised that the actual hotspots are inside `scalable` folder.... 
+### About hotspots
 
-Right now the build script just approximates the hotspots for the cursor files...
+Turns out the real hotspot data lives inside the `scalable` folder.
 
-Maybe in future I will make the scaling and hotspot positions correct...  
+Right now the script approximates hotspots while generating cursors.
 
-For now, I am satisfied. size 40 works without any problems... for now.
+One day I might make the scaling + hotspots fully correct.
+
+For now: size 40 works perfectly for me. For now...
+
+Good enough.
 
 ---
 # Please listen...
 
-### I didn't want to fork the entire Qogir icon theme repo. 
+### I did not want to fork the entire Qogir icon theme repo. 
 
-### I am simply interested in the cursors.
+### I only care about the cursors.
 
-- I should make it clear: I did not make the icons, nor do I own them.
+### To be very clear:
 
-- They are lisenced under **GPLv3** in the original github repo.
+- I did not create these cursors.
 
-I added a new build script, that's all.
+- I do not own the artwork.
 
-I have mentioned the changes I made as stipulated by the license.
+- TThey come from the original Qogir Icon Theme and are licensed under GPLv3.
 
-This repo is also lisenced under **GPLv3**.
+- Find the original license at [License](./LICENSE).
+
+### This repository contains:
+
+- Cursor SVG source files (source)
+
+- A custom build script
+
+- A modified install script
+
+### Changes
+
+- I added a new build script, that's all.
+
+### The [Authors](./AUTHORS) file is from original repo. Bit modified at the  end by me.
+### Check [Notice](./NOTICE) for changes.
+
+
+- [x] Same License.
+
+- [x] I have mentioned the changes I made as stipulated by the license.
+
+- [x] included the source for building the cursors.. duh.. svgs
+
+- [x] Gave the notice and authors files
+
+
+==> Hence, This repo is also lisenced under **GPLv3**.
 
 And I am not using this for any commercial purposes. Just eye-candy.
 

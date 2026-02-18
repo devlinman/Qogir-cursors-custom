@@ -1,0 +1,10 @@
+
+Changes made by devlinman
+
+My custom stuff:
+
+New build script.
+`better_fucking_build.sh`
+
+And comment out some lines in `install.sh`.
+- These lines are not needed for me. As I dont need manjaro or ubuntu versions.
