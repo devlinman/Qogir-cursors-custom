@@ -38,101 +38,70 @@ fucking_create_with_() {
 }
 
 
-motherfucking_calculate_and_insert_size() {
-    local cursor_file="$1"
-    local new_size="$2"
-
-    # skip if size already exists
-    if awk '{print $1}' "$cursor_file" | grep -qx "$new_size"; then
-        return
-    fi
-
-    # use last line as reference
-    read -r last_size last_xhot last_yhot last_path < <(tail -n1 "$cursor_file")
-
-    new_xhot=$(awk -v x="$last_xhot" -v ns="$new_size" -v ls="$last_size" \
-        'BEGIN { printf "%.0f", x * ns / ls }')
-
-    new_yhot=$(awk -v y="$last_yhot" -v ns="$new_size" -v ls="$last_size" \
-        'BEGIN { printf "%.0f", y * ns / ls }')
-
-    # clamp new hotspot
-    (( new_xhot < 0 )) && new_xhot=0
-    (( new_yhot < 0 )) && new_yhot=0
-    (( new_xhot >= new_size )) && new_xhot=$((new_size - 1))
-    (( new_yhot >= new_size )) && new_yhot=$((new_size - 1))
-
-    new_path=$(echo "$last_path" | sed -E "s/[0-9]+x[0-9]+/${new_size}x${new_size}/")
-    new_line="$new_size $new_xhot $new_yhot $new_path"
-
-    tmp=$(mktemp)
-
-    awk -v newline="$new_line" -v size="$new_size" '
-        BEGIN { inserted=0 }
-        {
-            if (!inserted && $1 > size) {
-                print newline
-                inserted=1
-            }
-            print
-        }
-        END { if (!inserted) print newline }
-    ' "$cursor_file" > "$tmp"
-
-    mv "$tmp" "$cursor_file"
-}
-
-
 fucking_calculate() {
     echo "Preparing temp cursor config..."
 
     rm -rf "$TEMP_CONFIG"
-    cp -r "$SRC/config" "$TEMP_CONFIG"
+    mkdir -p "$TEMP_CONFIG"
 
     # copy generated Png folders beside cursor files
     for size in "${SIZES[@]}"; do
         cp -r "$SRC/${size}x${size}" "$TEMP_CONFIG/"
     done
 
-    for CUR in "$TEMP_CONFIG"/*.cursor; do
-        # add missing sizes
-        for size in "${SIZES[@]}"; do
-            motherfucking_calculate_and_insert_size "$CUR" "$size"
-        done
+    python3 -c '
+import os
+import json
+import sys
 
-        tmp=$(mktemp)
+src_dir = sys.argv[1]
+temp_config_dir = sys.argv[2]
+sizes = [int(x) for x in sys.argv[3:]]
 
-        awk -v sizes="${SIZES[*]}" '
-        BEGIN {
-            split(sizes, allowed)
-            for (i in allowed) ok[allowed[i]] = 1
-        }
-        {
-            line=$0
-            sub(/^[ \t]+/, "", line)
-            if (line == "" || line ~ /^#/) next
+config_dir = os.path.join(src_dir, "config")
+scalable_dir = os.path.join(src_dir, "scalable")
 
-            split(line, f, " ")
-            size=f[1]
-            xhot=f[2]
-            yhot=f[3]
-            path=f[4]
-
-            if (size in ok) {
-                sub(/[0-9]+x[0-9]+/, size "x" size, path)
-
-                if (xhot < 0) xhot = 0
-                if (yhot < 0) yhot = 0
-                if (xhot >= size) xhot = size - 1
-                if (yhot >= size) yhot = size - 1
-
-                print size, xhot, yhot, path
-            }
-        }
-        ' "$CUR" > "$tmp"
-
-        mv "$tmp" "$CUR"
-    done
+for cursor_file in os.listdir(config_dir):
+    if not cursor_file.endswith(".cursor"):
+        continue
+    
+    cursor_name = cursor_file[:-7]
+    metadata_path = os.path.join(scalable_dir, cursor_name, "metadata.json")
+    
+    if not os.path.exists(metadata_path):
+        print(f"Warning: {metadata_path} not found for {cursor_name}")
+        continue
+        
+    with open(metadata_path, "r") as f:
+        metadata = json.load(f)
+        
+    out_lines = []
+    for size in sizes:
+        for frame in metadata:
+            filename = frame["filename"]
+            png_name = filename.rsplit(".", 1)[0] + ".png"
+            hotspot_x = float(frame["hotspot_x"])
+            hotspot_y = float(frame["hotspot_y"])
+            nominal_size = float(frame["nominal_size"])
+            
+            xhot = int(round(hotspot_x * size / nominal_size))
+            yhot = int(round(hotspot_y * size / nominal_size))
+            
+            # clamp new hotspot
+            if xhot < 0: xhot = 0
+            if yhot < 0: yhot = 0
+            if xhot >= size: xhot = size - 1
+            if yhot >= size: yhot = size - 1
+            
+            delay = frame.get("delay")
+            if delay is not None:
+                out_lines.append(f"{size} {xhot} {yhot} {size}x{size}/{png_name} {delay}\n")
+            else:
+                out_lines.append(f"{size} {xhot} {yhot} {size}x{size}/{png_name}\n")
+                
+    with open(os.path.join(temp_config_dir, cursor_file), "w") as f:
+        f.writelines(out_lines)
+' "$SRC" "$TEMP_CONFIG" "${SIZES[@]}"
 
     echo "Temp config ready"
 }
@@ -153,7 +122,7 @@ fucking_dist() {
     echo "Generating cursor theme..."
 
     for CUR in "$TEMP_CONFIG"/*.cursor; do
-        echo -e "\nNow working with: $CUR"
+#         echo -e "\nNow working with: $CUR"
         BASENAME="$(basename "$CUR" .cursor)"
         xcursorgen "$CUR" "$OUTPUT/$BASENAME"
     done
@@ -171,15 +140,21 @@ fucking_dist() {
     echo -e "[Icon Theme]\nName=$THEME\n" > "$INDEX"
 
     echo "Build DONE"
+    for size in "${SIZES[@]}"; do
+        local output_dir="$SRC/${size}x${size}"
+        rm -rf "$output_dir"
+    done
+
 }
 
 
 SRC="$PWD/src"
 TEMP_CONFIG="$SRC/temp-config"
 
-SIZES=(40)
+SIZES=(48 54 60 68 128)
 THEME="Qogir-white Cursors"
 BUILD="$SRC/../dist-Dark"
+rm -rf $BUILD
 
 fucking_create_with_ "svg-Dark"
 fucking_calculate

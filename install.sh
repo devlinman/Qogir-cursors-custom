@@ -19,3 +19,10 @@ cp -r dist-Dark/ $DEST_DIR/Qogir-white-cursors
 
 echo "Finished..."
 
+
+ans=""
+read -rp "Do you want to remove the dist folders? (y/*): " ans
+
+if [[ "$ans" == "y" || "$ans" == "Y" ]]; then
+    rm -rfv dist-*/
+fi
