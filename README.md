@@ -11,35 +11,28 @@ And the build system is..... hmmmmmm...
 
 I made my own `better_fucking_build.sh` file.
 
-It builds the cursors from the svgs using `inkscape` and `xcursorgen`, for any given size.
+It builds the cursors from the svgs using `inkscape` and `xcursorgen`, for any given size. Uses a lil' bit of `python` too.
 
 ### Build & Install
 
-I need size `40`. 
+I need size `60`. 
 
 If you want something else, edit the `SIZES` variable in the custom build script.
 
 I also modified the `install.sh` file to only install the required theme. I don't need the manjaro or ubuntu versions.
 
-So, just change the `SIZES` variable in my ***custom*** build script.
+run it.
 
-runit
-
-install using `install.sh`
+install cursor theme using `install.sh`.
 
 ### About hotspots
 
 Turns out the real hotspot data lives inside the `scalable` folder.
 
-Right now the script approximates hotspots while generating cursors.
-
-One day I might make the scaling + hotspots fully correct.
-
-For now: size 40 works perfectly for me. For now...
-
-Good enough.
+The hotspots data is now calculated from the `metadata.json` files in that folder.
 
 ---
+
 # Please listen...
 
 ### I did not want to fork the entire Qogir icon theme repo. 
